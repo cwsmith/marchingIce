@@ -30,7 +30,7 @@ def mesh_gl(thk, topg, x, y):
             # interpolate
             return ndimage.map_coordinates(self.values, coords,
                                            order=self.order,
-                                           cval=np.nan)  # fill_value
+                                           cval=np.nan)[0]  # fill_value
 
     print("mesh_gl start\n")
     tic = time.time()
