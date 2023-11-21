@@ -34,7 +34,7 @@ def marching_cubes_2d_single_cell(f, x, y, cellSize=CELL_SIZE):
     # Getting those swaps correct isn't needed for our simple visualizations,
     # but is important in other uses cases particularly in 3d.
 
-    a = Adapt(True, cellSize)
+    a = Adapt(False, cellSize)
 
     # FIXME There is a problem in how coordinates are stored: sometimes as arrays sometimes as floats
     if case == 0 or case == 15:
