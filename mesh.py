@@ -2,6 +2,7 @@ import time
 import numpy as np
 import marching_cubes_2d as mc
 from scipy import ndimage
+import meshio
 
 def mesh_gl(thk, topg, x, y):
     class CartesianGridInterpolator:
@@ -63,14 +64,19 @@ def mesh_gl(thk, topg, x, y):
     cgi = CartesianGridInterpolator((x, y), phi, method='linear')
 
     edges = mc.marching_cubes_2d(cgi, min(x), max(x), min(y), max(y), dx)
-    edgePointsX = []
-    edgePointsY = []
-    for e in edges:
-        edgePointsX.append(e.v1.x)
-        edgePointsY.append(e.v1.y)
-        edgePointsX.append(e.v2.x)
-        edgePointsY.append(e.v2.y)
 
+    points = []
+    for e in edges:
+        points.append(([e.v1.x[0]], e.v1.y[0]))
+#        points.append([e.v2.x, e.v2.y])
+
+    cells = []
+    for i in range(len(edges)):
+        cells.append(("line", [i, i+1]))
+
+    mesh = meshio.Mesh(points,cells)
+
+    mesh.write("gis.vtk")
 
     toc = time.time()
     print("mesh_gl end\n" + str(toc - tic))
