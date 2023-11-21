@@ -67,8 +67,8 @@ def mesh_gl(thk, topg, x, y):
 
     points = []
     for e in edges:
-        points.append(([e.v1.x[0]], e.v1.y[0]))
-#        points.append([e.v2.x, e.v2.y])
+        points.append([e.v1.x, e.v1.y])
+        points.append([e.v2.x, e.v2.y])
 
     cells = []
     for i in range(len(edges)):
