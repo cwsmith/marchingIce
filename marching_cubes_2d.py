@@ -36,6 +36,7 @@ def marching_cubes_2d_single_cell(f, x, y, cellSize=CELL_SIZE):
 
     a = Adapt(True, cellSize)
 
+    # FIXME There is a problem in how coordinates are stored: sometimes as arrays sometimes as floats
     if case == 0 or case == 15:
         # All outside / inside
         return []
