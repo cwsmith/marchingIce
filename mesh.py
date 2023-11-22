@@ -15,7 +15,7 @@ def mesh_gl(thk, topg, x, y):
             self.method = method
 
         def __call__(self, x, y):
-            return interpn(self.points, self.values, (x, y))
+            return interpn(self.points, self.values, (x, y))[0]
 
     print("mesh_gl start\n")
     assert (thk.shape == (len(y), len(x)))
