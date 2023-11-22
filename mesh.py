@@ -17,6 +17,15 @@ def mesh_gl(thk, topg, x, y):
         def __call__(self, x, y):
             return interpn(self.points, self.values, (x, y))[0]
 
+    d2e = np.load("dist_to_edge.npy")
+    plt.imshow(d2e, interpolation="nearest", origin="upper")
+    plt.colorbar()
+    plt.savefig("dist_to_edge.png")
+    d2gl = np.load("dist_to_grounding_line.npy")
+    plt.imshow(d2gl, interpolation="nearest", origin="upper")
+    plt.colorbar()
+    plt.savefig("dist_to_grounding_line.png")
+
     print("mesh_gl start\n")
     assert (thk.shape == (len(y), len(x)))
     tic = time.time()
