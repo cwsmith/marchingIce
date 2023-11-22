@@ -1,11 +1,11 @@
 import time
 import numpy as np
 import marching_cubes_2d as mc
-from scipy import ndimage
 import meshio
 import matplotlib.pyplot as plt
 
 from scipy.interpolate import interpn
+
 
 def mesh_gl(thk, topg, x, y):
     class Interp:
@@ -13,11 +13,12 @@ def mesh_gl(thk, topg, x, y):
             self.points = points
             self.values = values
             self.method = method
-        def __call__(self,x,y):
-            return interpn(self.points, self.values, (x,y))
+
+        def __call__(self, x, y):
+            return interpn(self.points, self.values, (x, y))
 
     print("mesh_gl start\n")
-    assert(thk.shape == (len(y),len(x)))
+    assert (thk.shape == (len(y), len(x)))
     tic = time.time()
 
     dx = x[1] - x[0]  # assumed constant and equal in x and y
@@ -68,10 +69,10 @@ def mesh_gl(thk, topg, x, y):
 
     lineIndices = []
     for i in range(len(edges)):
-        lineIndices.append([i, i+1])
+        lineIndices.append([i, i + 1])
     cells = [("line", lineIndices)]
 
-    mesh = meshio.Mesh(points,cells)
+    mesh = meshio.Mesh(points, cells)
 
     mesh.write("gis.vtk")
 
