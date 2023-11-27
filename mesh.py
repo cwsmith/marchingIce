@@ -15,16 +15,7 @@ def mesh_gl(thk, topg, x, y):
             self.method = method
 
         def __call__(self, x, y):
-            return interpn(self.points, self.values, (x, y))[0]
-
-    d2e = np.load("dist_to_edge.npy")
-    plt.imshow(d2e, interpolation="nearest", origin="upper")
-    plt.colorbar()
-    plt.savefig("dist_to_edge.png")
-    d2gl = np.load("dist_to_grounding_line.npy")
-    plt.imshow(d2gl, interpolation="nearest", origin="upper")
-    plt.colorbar()
-    plt.savefig("dist_to_grounding_line.png")
+            return interpn(self.points, self.values, (x, y))
 
     print("mesh_gl start\n")
     assert (thk.shape == (len(y), len(x)))
@@ -47,7 +38,7 @@ def mesh_gl(thk, topg, x, y):
     # FIXME this isn't very pythonish
     for i in range(rows):
         for j in range(cols):
-            if thk[i][j] <= 0:
+            if np.isclose(thk[i][j], 0) or thk[i][j] < 0:
                 phi[i][j] = max_distance
             else:
                 phi[i][j] = rho_i * thk[i][j] + rho_w * topg[i][j]

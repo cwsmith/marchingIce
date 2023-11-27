@@ -7,15 +7,9 @@ from common import Adapt, Edge, frange
 from settings import CELL_SIZE, XMAX, XMIN, YMAX, YMIN
 from utils_2d import V2, make_svg
 
-def marching_cubes_2d_single_cell(f, x, y, cellSize=CELL_SIZE):
+def marching_cubes_2d_single_cell(x0y0, x0y1, x1y0, x1y1, x, y, cellSize=CELL_SIZE):
     """Returns a list of edges that approximate
        f's boundary for a single cell"""
-
-    # Evaluate
-    x0y0 = f(x, y)
-    x0y1 = f(x, y + cellSize)
-    x1y0 = f(x + cellSize, y)
-    x1y1 = f(x + cellSize, y + cellSize)
 
     # There are 16 different cases that these points can be inside or outside.
     # We use binary counting to map the 4 truth values to a number between 0
@@ -91,10 +85,21 @@ def marching_cubes_2d(f, xmin=XMIN, xmax=XMAX, ymin=YMIN, ymax=YMAX,
     # For each cube, evaluate independently.
     # If this wasn't demonstration code, you might actually evaluate them
     # together for efficiency
-    edges = []
+    ptX = []
+    ptY = []
     for x in frange(xmin, xmax, cellSize):
         for y in frange(ymin, ymax, cellSize):
-            edges.extend(marching_cubes_2d_single_cell(f, x, y, cellSize))
+            ptX.append(x)
+            ptY.append(y)
+
+    x0y0 = f(ptX,ptY)
+    x0y1 = f(ptX, ptY + cellSize)
+    x1y0 = f(ptX + cellSize, ptY)
+    x1y1 = f(ptX + cellSize, ptY + cellSize)
+
+    edges = []
+    for a, b, c, d, x, y in zip(x0y0, x0y1, x1y0, x1y1, ptX, ptY):
+      edges.extend(marching_cubes_2d_single_cell(a, b, c, d, x, y, cellSize))
     return edges
 
 
