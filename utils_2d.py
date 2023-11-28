@@ -3,6 +3,7 @@
 # master@a165b326849d8814fb03c963ad33a9faf6cc6dea
 
 import math
+import meshio
 
 from settings import CELL_SIZE, XMAX, XMIN, YMAX, YMIN
 
@@ -47,3 +48,19 @@ def make_svg(file, edges, f, xmin=XMIN, xmax=XMAX, ymin=YMIN, ymax=YMAX,
 
     file.write("</g>\n")
     file.write("</svg>\n")
+
+def writeVtk(edges, file):
+    """Writes a VTK mesh file from the given edges."""
+    points = []
+    for e in edges:
+        points.append([e.v1.x, e.v1.y, 0])
+        points.append([e.v2.x, e.v2.y, 0])
+
+    lineIndices = []
+    for i in range(len(edges)):
+        lineIndices.append([i*2, i*2 + 1])
+    cells = [("line", lineIndices)]
+
+    mesh = meshio.Mesh(points, cells)
+
+    mesh.write(file)
