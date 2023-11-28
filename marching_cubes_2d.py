@@ -3,11 +3,14 @@
 # master@a165b326849d8814fb03c963ad33a9faf6cc6dea
 import math
 
+import matplotlib.pyplot as plt
+import numpy as np
+
 from common import Adapt, Edge, frange
 from settings import CELL_SIZE, XMAX, XMIN, YMAX, YMIN
-from utils_2d import V2, make_svg
+from utils_2d import V2, writeVtk
 
-def marching_cubes_2d_single_cell(x0y0, x0y1, x1y0, x1y1, x, y, cellSize=CELL_SIZE):
+def marching_cubes_2d_single_cell(x0y0, x0y1, x1y0, x1y1, x, y, cellCase, cellSize=CELL_SIZE):
     """Returns a list of edges that approximate
        f's boundary for a single cell"""
 
@@ -19,6 +22,8 @@ def marching_cubes_2d_single_cell(x0y0, x0y1, x1y0, x1y1, x, y, cellSize=CELL_SI
             (2 if x0y1 > 0 else 0) +
             (4 if x1y0 > 0 else 0) +
             (8 if x1y1 > 0 else 0))
+
+    cellCase.append(case)
 
     # Several of the cases are inverses of each other where solid is non solid
     # and visa versa.
@@ -92,19 +97,31 @@ def marching_cubes_2d(f, xmin=XMIN, xmax=XMAX, ymin=YMIN, ymax=YMAX,
             ptX.append(x)
             ptY.append(y)
 
-    x0y0 = f(ptX,ptY)
-    x0y1 = f(ptX, ptY + cellSize)
-    x1y0 = f(ptX + cellSize, ptY)
-    x1y1 = f(ptX + cellSize, ptY + cellSize)
+    cellsInX = np.ceil((xmax-xmin)/cellSize)
+    cellsInY = np.ceil((ymax-ymin)/cellSize)
+    print("grid dims: {} x {} cells".format(cellsInX, cellsInY))
+
+    x0y0 = f(ptX, ptY)
+    x0y1 = f(ptX, np.add(ptY, cellSize))
+    x1y0 = f(np.add(ptX,cellSize), ptY)
+    x1y1 = f(np.add(ptX,cellSize), np.add(ptY,cellSize))
 
     edges = []
+    cellCase = []
     for a, b, c, d, x, y in zip(x0y0, x0y1, x1y0, x1y1, ptX, ptY):
-      edges.extend(marching_cubes_2d_single_cell(a, b, c, d, x, y, cellSize))
+        edges_new = marching_cubes_2d_single_cell(a, b, c, d, x, y, cellCase, cellSize)
+        edges.extend(edges_new)
+    cellCaseGrid = np.reshape(cellCase, (int(cellsInX), int(cellsInY)))
+    plt.imshow(cellCaseGrid, interpolation="nearest", origin="upper")
+    plt.colorbar()
+    plt.savefig("cellCase.png")
+
     return edges
 
 
 def circle_function(x, y):
-    return 2.5 - math.sqrt(x * x + y * y)
+    r = 2.5 - np.sqrt(np.square(x) + np.square(y))
+    return r
 
 
 def square_function(x, y):
@@ -121,5 +138,5 @@ __all__ = ["marching_cubes_2d"]
 
 if __name__ == "__main__":
     edges = marching_cubes_2d(circle_function)
-    with open("example.svg", "w") as file:
-        make_svg(file, edges, circle_function)
+    writeVtk(edges, "circle.vtk")
+

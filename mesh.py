@@ -1,8 +1,7 @@
 import time
 import numpy as np
 import marching_cubes_2d as mc
-import meshio
-import matplotlib.pyplot as plt
+import utils_2d as util
 
 from scipy.interpolate import interpn
 
@@ -46,22 +45,10 @@ def mesh_gl(thk, topg, x, y):
     mcBegin = time.time()
     edges = mc.marching_cubes_2d(cgi, min(x), max(x), min(y), max(y), dx)
     mcEnd = time.time()
-    print("marching_cubes_2d done" + str(mcEnd - mcBegin))
+    print("marching_cubes_2d done: {:.2f} seconds".format(mcEnd - mcBegin))
 
     print("len(edges)", len(edges))
-    points = []
-    for e in edges:
-        points.append([e.v1.x, e.v1.y, 0])
-        points.append([e.v2.x, e.v2.y, 0])
-
-    lineIndices = []
-    for i in range(len(edges)):
-        lineIndices.append([i, i + 1])
-    cells = [("line", lineIndices)]
-
-    mesh = meshio.Mesh(points, cells)
-
-    mesh.write("gis.vtk")
+    util.writeVtk(edges, "gis.vtk")
 
     toc = time.time()
-    print("mesh_gl end\n" + str(toc - tic))
+    print("mesh_gl done: {:.2f} seconds\n".format(toc - tic))
