@@ -42,20 +42,7 @@ def mesh_gl(thk, topg, x, y):
                 phi[i][j] = max_distance
             else:
                 phi[i][j] = rho_i * thk[i][j] + rho_w * topg[i][j]
-    # plt.imshow(phi, interpolation="nearest", origin="upper")
-    # plt.colorbar()
-    # plt.show()
     cgi = Interp((x, y), phi.T, method='linear')
-    # The following reproduces the plot of phi above...
-    #  the previous interpolator did not.
-    # interp = np.zeros((rows, cols))
-    # for i in range(rows):
-    #    for j in range(cols):
-    #        d = cgi(x[j], y[i])
-    #        interp[i][j] = d
-    # plt.imshow(interp, interpolation="nearest", origin="upper")
-    # plt.colorbar()
-    # plt.show()
     mcBegin = time.time()
     edges = mc.marching_cubes_2d(cgi, min(x), max(x), min(y), max(y), dx)
     mcEnd = time.time()
