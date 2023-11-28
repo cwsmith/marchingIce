@@ -1,8 +1,8 @@
 import time
 import numpy as np
-import marching_cubes_2d as mc
 import utils_2d as util
 
+from skimage.measure import find_contours
 from scipy.interpolate import interpn
 
 
@@ -20,7 +20,7 @@ def mesh_gl(thk, topg, x, y):
     assert (thk.shape == (len(y), len(x)))
     tic = time.time()
 
-    dx = x[1] - x[0]  # assumed constant and equal in x and y
+    cell_size = x[1] - x[0]  # assumed constant and equal in x and y
 
     rho_i = 910.0
     rho_w = 1028.0
@@ -42,13 +42,16 @@ def mesh_gl(thk, topg, x, y):
             else:
                 phi[i][j] = rho_i * thk[i][j] + rho_w * topg[i][j]
     cgi = Interp((x, y), phi.T, method='linear')
-    mcBegin = time.time()
-    edges = mc.marching_cubes_2d(cgi, min(x), max(x), min(y), max(y), dx)
-    mcEnd = time.time()
-    print("marching_cubes_2d done: {:.2f} seconds".format(mcEnd - mcBegin))
+    x_mid_pt = np.add(x, cell_size/2)
+    y_mid_pt = np.add(y, cell_size/2)
+    phi_mid_pt = cgi(x_mid_pt, y_mid_pt)
+    ms_begin = time.time()
+    contour_pts = find_contours(phi_mid_pt, 0.0)
+    ms_end = time.time()
+    print("find_contours done: {:.2f} seconds".format(ms_end - ms_begin))
 
-    print("len(edges)", len(edges))
-    util.writeVtk(edges, "gis.vtk")
+    print("len(contour_pts)", len(contour_pts))
+    #util.writeVtk(edges, "gis.vtk")
 
     toc = time.time()
     print("mesh_gl done: {:.2f} seconds\n".format(toc - tic))
