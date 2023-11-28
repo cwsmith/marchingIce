@@ -8,19 +8,21 @@ from scipy.interpolate import interpn
 
 def mesh_gl(thk, topg, x, y):
     class Interp:
-        def __init__(self, points, values, method='linear'):
+        def __init__(self, points, values, fill, method='linear'):
             self.points = points
             self.values = values
             self.method = method
+            self.fill = fill
 
         def __call__(self, x, y):
-            return interpn(self.points, self.values, (x, y))
+            return interpn(self.points, self.values, (x, y), bounds_error=False, fill_value=self.fill)
 
     print("mesh_gl start\n")
     assert (thk.shape == (len(y), len(x)))
     tic = time.time()
 
     cell_size = x[1] - x[0]  # assumed constant and equal in x and y
+    half_cell_size = cell_size/2
 
     rho_i = 910.0
     rho_w = 1028.0
@@ -41,12 +43,15 @@ def mesh_gl(thk, topg, x, y):
                 phi[i][j] = max_distance
             else:
                 phi[i][j] = rho_i * thk[i][j] + rho_w * topg[i][j]
-    cgi = Interp((x, y), phi.T, method='linear')
-    x_mid_pt = np.add(x, cell_size/2)
-    y_mid_pt = np.add(y, cell_size/2)
-    phi_mid_pt = cgi(x_mid_pt, y_mid_pt)
+    cgi = Interp((x, y), phi.T, fill=max_distance, method='linear')
+    min_x, max_x = np.min(x), np.max(x)
+    min_y, max_y = np.min(y), np.max(y)
+    mid_pt_x, mid_pt_y = np.mgrid[min_x+half_cell_size:max_x:cell_size,
+                                  min_y+half_cell_size:max_y:cell_size]
+    phi_mid_pt = cgi(mid_pt_x, mid_pt_y)
+    phi_mid_pt_grid = np.reshape(phi_mid_pt, mid_pt_x.shape)
     ms_begin = time.time()
-    contour_pts = find_contours(phi_mid_pt, 0.0)
+    contour_pts = find_contours(phi_mid_pt_grid, 0.0)
     ms_end = time.time()
     print("find_contours done: {:.2f} seconds".format(ms_end - ms_begin))
 
