@@ -37,7 +37,7 @@ def mesh_gl(thk, topg, x, y):
     # FIXME this isn't very pythonish
     for i in range(rows):
         for j in range(cols):
-            if np.isclose(thk[i][j], 0) or thk[i][j] < 0:
+            if not np.isclose(thk[i][j], 0) and thk[i][j] < 0:
                 phi[i][j] = max_distance
             else:
                 phi[i][j] = rho_i * thk[i][j] + rho_w * topg[i][j]
