@@ -106,17 +106,17 @@ def marching_cubes_2d(f, xmin=XMIN, xmax=XMAX, ymin=YMIN, ymax=YMAX,
     x1y0 = f(np.add(pt_x, cell_size), pt_y)
     x1y1 = f(np.add(pt_x, cell_size), np.add(pt_y, cell_size))
 
-    edges = []
+    mc_edges = []
     cell_case = []
     for a, b, c, d, x, y in zip(x0y0, x0y1, x1y0, x1y1, pt_x, pt_y):
         edges_new = marching_cubes_2d_single_cell(a, b, c, d, x, y, cell_case, cell_size)
-        edges.extend(edges_new)
+        mc_edges.extend(edges_new)
     cellCaseGrid = np.reshape(cell_case, (int(cells_in_x), int(cells_in_y)))
     plt.imshow(cellCaseGrid, interpolation="nearest", origin="upper")
     plt.colorbar()
     plt.savefig("cell_case.png")
 
-    return edges
+    return mc_edges
 
 
 def circle_function(x, y):
