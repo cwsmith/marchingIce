@@ -1,7 +1,6 @@
 """Provides a function for performing 2D Marching Cubes"""
 # based on https://github.com/BorisTheBrave/mc-dc
 # master@a165b326849d8814fb03c963ad33a9faf6cc6dea
-import math
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,7 +9,8 @@ from common import Adapt, Edge, frange
 from settings import CELL_SIZE, XMAX, XMIN, YMAX, YMIN
 from utils_2d import V2, writeVtk
 
-def marching_cubes_2d_single_cell(x0y0, x0y1, x1y0, x1y1, x, y, cellCase, cellSize=CELL_SIZE):
+
+def marching_cubes_2d_single_cell(x0y0, x0y1, x1y0, x1y1, x, y, cell_case, cell_size=CELL_SIZE):
     """Returns a list of edges that approximate
        f's boundary for a single cell"""
 
@@ -23,7 +23,7 @@ def marching_cubes_2d_single_cell(x0y0, x0y1, x1y0, x1y1, x, y, cellCase, cellSi
             (4 if x1y0 > 0 else 0) +
             (8 if x1y1 > 0 else 0))
 
-    cellCase.append(case)
+    cell_case.append(case)
 
     # Several of the cases are inverses of each other where solid is non solid
     # and visa versa.
@@ -33,7 +33,7 @@ def marching_cubes_2d_single_cell(x0y0, x0y1, x1y0, x1y1, x, y, cellCase, cellSi
     # Getting those swaps correct isn't needed for our simple visualizations,
     # but is important in other uses cases particularly in 3d.
 
-    a = Adapt(True, cellSize)
+    a = Adapt(True, cell_size)
 
     # FIXME There is a problem in how coordinates are stored: sometimes as arrays sometimes as floats
     if case == 0 or case == 15:
@@ -47,74 +47,74 @@ def marching_cubes_2d_single_cell(x0y0, x0y1, x1y0, x1y1, x, y, cellCase, cellSi
     if case == 2 or case == 13:
         # Single corner
         return [Edge(V2(x + 0, y + a.adapt(x0y0, x0y1)),
-                     V2(x + a.adapt(x0y1, x1y1), y + cellSize))
+                     V2(x + a.adapt(x0y1, x1y1), y + cell_size))
                 .swap(case == 13)]
     if case == 4 or case == 11:
         # Single corner
-        return [Edge(V2(x + cellSize, y + a.adapt(x1y0, x1y1)),
+        return [Edge(V2(x + cell_size, y + a.adapt(x1y0, x1y1)),
                      V2(x + a.adapt(x0y0, x1y0), y + 0))
                 .swap(case == 11)]
     if case == 8 or case == 7:
         # Single corner
-        return [Edge(V2(x + a.adapt(x0y1, x1y1), y + cellSize),
-                     V2(x + cellSize, y + a.adapt(x1y0, x1y1)))
+        return [Edge(V2(x + a.adapt(x0y1, x1y1), y + cell_size),
+                     V2(x + cell_size, y + a.adapt(x1y0, x1y1)))
                 .swap(case == 7)]
     if case == 3 or case == 12:
         # Vertical split
         return [Edge(V2(x + a.adapt(x0y0, x1y0), y + 0),
-                     V2(x + a.adapt(x0y1, x1y1), y + cellSize))
+                     V2(x + a.adapt(x0y1, x1y1), y + cell_size))
                 .swap(case == 12)]
     if case == 5 or case == 10:
         # Horizontal split
         return [Edge(V2(x + 0, y + a.adapt(x0y0, x0y1)),
-                     V2(x + cellSize, y + a.adapt(x1y0, x1y1)))
+                     V2(x + cell_size, y + a.adapt(x1y0, x1y1)))
                 .swap(case == 5)]
     if case == 9:
         # Two opposite corners, copy cases 1 and 8
         return [Edge(V2(x + 0 + a.adapt(x0y0, x1y0), y),
                      V2(x + 0, y + a.adapt(x0y0, x0y1))),
                 Edge(V2(x + a.adapt(x0y1, x1y1), y + 1),
-                     V2(x + cellSize, y + a.adapt(x1y0, x1y1)))]
+                     V2(x + cell_size, y + a.adapt(x1y0, x1y1)))]
     if case == 6:
         # Two opposite corners, copy cases 2 and 4
-        return [Edge(V2(x + cellSize, y + a.adapt(x1y0, x1y1)),
+        return [Edge(V2(x + cell_size, y + a.adapt(x1y0, x1y1)),
                      V2(x + a.adapt(x0y0, x1y0), y + 0)),
                 Edge(V2(x + 0, y + a.adapt(x0y0, x0y1)),
-                     V2(x + a.adapt(x0y1, x1y1), y + cellSize))]
+                     V2(x + a.adapt(x0y1, x1y1), y + cell_size))]
 
     assert False, "All cases exhausted"
 
 
 def marching_cubes_2d(f, xmin=XMIN, xmax=XMAX, ymin=YMIN, ymax=YMAX,
-                      cellSize=CELL_SIZE):
+                      cell_size=CELL_SIZE):
     # For each cube, evaluate independently.
     # If this wasn't demonstration code, you might actually evaluate them
     # together for efficiency
-    ptX = []
-    ptY = []
-    for x in frange(xmin, xmax, cellSize):
-        for y in frange(ymin, ymax, cellSize):
-            ptX.append(x)
-            ptY.append(y)
+    pt_x = []
+    pt_y = []
+    for x in frange(xmin, xmax, cell_size):
+        for y in frange(ymin, ymax, cell_size):
+            pt_x.append(x)
+            pt_y.append(y)
 
-    cellsInX = np.ceil((xmax-xmin)/cellSize)
-    cellsInY = np.ceil((ymax-ymin)/cellSize)
-    print("grid dims: {} x {} cells".format(cellsInX, cellsInY))
+    cells_in_x = np.ceil((xmax - xmin) / cell_size)
+    cells_in_y = np.ceil((ymax - ymin) / cell_size)
+    print("grid dims: {} x {} cells".format(cells_in_x, cells_in_y))
 
-    x0y0 = f(ptX, ptY)
-    x0y1 = f(ptX, np.add(ptY, cellSize))
-    x1y0 = f(np.add(ptX,cellSize), ptY)
-    x1y1 = f(np.add(ptX,cellSize), np.add(ptY,cellSize))
+    x0y0 = f(pt_x, pt_y)
+    x0y1 = f(pt_x, np.add(pt_y, cell_size))
+    x1y0 = f(np.add(pt_x, cell_size), pt_y)
+    x1y1 = f(np.add(pt_x, cell_size), np.add(pt_y, cell_size))
 
     edges = []
-    cellCase = []
-    for a, b, c, d, x, y in zip(x0y0, x0y1, x1y0, x1y1, ptX, ptY):
-        edges_new = marching_cubes_2d_single_cell(a, b, c, d, x, y, cellCase, cellSize)
+    cell_case = []
+    for a, b, c, d, x, y in zip(x0y0, x0y1, x1y0, x1y1, pt_x, pt_y):
+        edges_new = marching_cubes_2d_single_cell(a, b, c, d, x, y, cell_case, cell_size)
         edges.extend(edges_new)
-    cellCaseGrid = np.reshape(cellCase, (int(cellsInX), int(cellsInY)))
+    cellCaseGrid = np.reshape(cell_case, (int(cells_in_x), int(cells_in_y)))
     plt.imshow(cellCaseGrid, interpolation="nearest", origin="upper")
     plt.colorbar()
-    plt.savefig("cellCase.png")
+    plt.savefig("cell_case.png")
 
     return edges
 
@@ -139,4 +139,3 @@ __all__ = ["marching_cubes_2d"]
 if __name__ == "__main__":
     edges = marching_cubes_2d(circle_function)
     writeVtk(edges, "circle.vtk")
-
