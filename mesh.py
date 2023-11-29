@@ -5,6 +5,9 @@ import utils_2d as util
 from skimage.measure import find_contours
 from scipy.interpolate import interpn
 
+import matplotlib.pyplot as plt
+
+
 
 def mesh_gl(thk, topg, x, y):
     class Interp:
@@ -51,11 +54,18 @@ def mesh_gl(thk, topg, x, y):
     phi_mid_pt = cgi(mid_pt_x, mid_pt_y)
     phi_mid_pt_grid = np.reshape(phi_mid_pt, mid_pt_x.shape)
     ms_begin = time.time()
-    contour_pts = find_contours(phi_mid_pt_grid, 0.0)
+    contours = find_contours(phi_mid_pt_grid, 0.0)
     ms_end = time.time()
     print("find_contours done: {:.2f} seconds".format(ms_end - ms_begin))
 
-    print("len(contour_pts)", len(contour_pts))
+    # Display the image and plot all contours found
+    fig, ax = plt.subplots()
+    ax.imshow(phi_mid_pt_grid, cmap=plt.cm.gray)
+
+    for contour in contours:
+        print("len(contour)", len(contour))
+        ax.plot(contour[:, 1], contour[:, 0], linewidth=2)
+    plt.show()
     #util.writeVtk(edges, "gis.vtk")
 
     toc = time.time()
