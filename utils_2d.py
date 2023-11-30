@@ -74,7 +74,8 @@ def writeContoursToVtk(contours, file):
     contour_id = 0
     contour_ids = []
     for contour_pts in contours:
-        print("len(contour_pts)", len(contour_pts))
+        print("len(contour_pts) {} closed contour {}",
+              len(contour_pts), (contour_pts[-1] == contour_pts[0]).all())
         for i in range(len(contour_pts)-1):
             points.append(contour_pts[i])
             line_indices.append([first_point + i, first_point + i + 1])
