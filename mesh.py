@@ -58,15 +58,7 @@ def mesh_gl(thk, topg, x, y):
     ms_end = time.time()
     print("find_contours done: {:.2f} seconds".format(ms_end - ms_begin))
 
-    # Display the image and plot all contours found
-    fig, ax = plt.subplots()
-    ax.imshow(phi_mid_pt_grid, cmap=plt.cm.gray)
-
-    for contour in contours:
-        print("len(contour)", len(contour))
-        ax.plot(contour[:, 1], contour[:, 0], linewidth=2)
-    plt.show()
-    #util.writeVtk(edges, "gis.vtk")
+    util.writeContoursToVtk(contours, "gisContours.vtk")
 
     toc = time.time()
     print("mesh_gl done: {:.2f} seconds\n".format(toc - tic))

@@ -6,7 +6,7 @@ import math
 import meshio
 
 from settings import CELL_SIZE, XMAX, XMIN, YMAX, YMIN
-
+import numpy as np
 
 class V2:
     def __init__(self, x, y):
@@ -60,6 +60,26 @@ def writeVtk(edges, file):
     for i in range(len(edges)):
         lineIndices.append([i*2, i*2 + 1])
     cells = [("line", lineIndices)]
+
+    mesh = meshio.Mesh(points, cells)
+
+    mesh.write(file)
+
+
+def writeContoursToVtk(contours, file):
+    """Writes a VTK mesh file from the given contours (chains of vertices that form edges)."""
+    points = []
+    line_indices = []
+    first_point = 0
+    for contour_pts in contours:
+        print("len(contour_pts)", len(contour_pts))
+        for i in range(len(contour_pts)-1):
+            points.append(contour_pts[i])
+            line_indices.append([first_point + i, first_point + i + 1])
+        points.append(contour_pts[-1])
+        first_point = len(points)
+
+    cells = [("line", line_indices)]
 
     mesh = meshio.Mesh(points, cells)
 
