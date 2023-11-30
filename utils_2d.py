@@ -71,16 +71,21 @@ def writeContoursToVtk(contours, file):
     points = []
     line_indices = []
     first_point = 0
+    contour_id = 0
+    contour_ids = []
     for contour_pts in contours:
         print("len(contour_pts)", len(contour_pts))
         for i in range(len(contour_pts)-1):
             points.append(contour_pts[i])
             line_indices.append([first_point + i, first_point + i + 1])
+            contour_ids.append([contour_id])
         points.append(contour_pts[-1])
         first_point = len(points)
+        contour_id = contour_id + 1
 
     cells = [("line", line_indices)]
+    cell_data = {"contour_id": [contour_ids]}
 
-    mesh = meshio.Mesh(points, cells)
+    mesh = meshio.Mesh(points, cells, cell_data=cell_data)
 
     mesh.write(file)
