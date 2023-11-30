@@ -1,12 +1,34 @@
 import time
 import numpy as np
-import utils_2d as util
-
 from skimage.measure import find_contours
 from scipy.interpolate import interpn
+import meshio
 
-import matplotlib.pyplot as plt
 
+def writeContoursToVtk(contours, file):
+    """Writes a VTK mesh file from the given contours (chains of vertices that form edges)."""
+    points = []
+    line_indices = []
+    first_point = 0
+    contour_id = 0
+    contour_ids = []
+    for contour_pts in contours:
+        print("len(contour_pts) {} closed contour {}",
+              len(contour_pts), (contour_pts[-1] == contour_pts[0]).all())
+        for i in range(len(contour_pts)-1):
+            points.append(contour_pts[i])
+            line_indices.append([first_point + i, first_point + i + 1])
+            contour_ids.append([contour_id])
+        points.append(contour_pts[-1])
+        first_point = len(points)
+        contour_id = contour_id + 1
+
+    cells = [("line", line_indices)]
+    cell_data = {"contour_id": [contour_ids]}
+
+    mesh = meshio.Mesh(points, cells, cell_data=cell_data)
+
+    mesh.write(file)
 
 
 def mesh_gl(thk, topg, x, y):
@@ -58,7 +80,15 @@ def mesh_gl(thk, topg, x, y):
     ms_end = time.time()
     print("find_contours done: {:.2f} seconds".format(ms_end - ms_begin))
 
-    util.writeContoursToVtk(contours, "gisContours.vtk")
+    writeContoursToVtk(contours, "gisContours.vtk")
 
     toc = time.time()
     print("mesh_gl done: {:.2f} seconds\n".format(toc - tic))
+
+
+if __name__ == '__main__':
+    thk = np.load("thk.npy")
+    topg = np.load("topg.npy")
+    x = np.load("x.npy")
+    y = np.load("y.npy")
+    mesh_gl(thk,topg,x,y)
