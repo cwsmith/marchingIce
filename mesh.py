@@ -15,13 +15,12 @@ def writeContoursToVtk(contours, file, cell_size, min_x, min_y):
     for contour_pts in contours:
         is_closed = (contour_pts[-1] == contour_pts[0]).all()
         print("len(contour_pts) {} closed contour {}".format(len(contour_pts), is_closed))
-        for i in range(len(contour_pts)-1):
-            pt = (contour_pts[i] * cell_size) + (min_x, min_y)
-            points.append(pt)
+        transformed_pts = [ (pt * cell_size) + (min_x, min_y) for pt in contour_pts]
+        for i in range(len(contour_pts) - 1):
+            points.append(transformed_pts[i])
             line_indices.append([first_point + i, first_point + i + 1])
             contour_ids.append([contour_id])
-        pt = (contour_pts[-1] * cell_size) + (min_x, min_y)
-        points.append(pt)
+        points.append(transformed_pts[-1])
         first_point = len(points)
         contour_id = contour_id + 1
 
