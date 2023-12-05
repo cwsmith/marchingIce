@@ -5,7 +5,7 @@ from scipy.interpolate import interpn
 import meshio
 
 
-def writeContoursToVtk(contours, file):
+def writeContoursToVtk(contours, file, cell_size, min_x, min_y):
     """Writes a VTK mesh file from the given contours (chains of vertices that form edges)."""
     points = []
     line_indices = []
@@ -13,13 +13,15 @@ def writeContoursToVtk(contours, file):
     contour_id = 0
     contour_ids = []
     for contour_pts in contours:
-        print("len(contour_pts) {} closed contour {}",
-              len(contour_pts), (contour_pts[-1] == contour_pts[0]).all())
+        is_closed = (contour_pts[-1] == contour_pts[0]).all()
+        print("len(contour_pts) {} closed contour {}".format(len(contour_pts), is_closed))
         for i in range(len(contour_pts)-1):
-            points.append(contour_pts[i])
+            pt = (contour_pts[i] * cell_size) + (min_x, min_y)
+            points.append(pt)
             line_indices.append([first_point + i, first_point + i + 1])
             contour_ids.append([contour_id])
-        points.append(contour_pts[-1])
+        pt = (contour_pts[-1] * cell_size) + (min_x, min_y)
+        points.append(pt)
         first_point = len(points)
         contour_id = contour_id + 1
 
@@ -80,14 +82,14 @@ def mesh_gl(thk, topg, x, y):
     ms_end = time.time()
     print("find_contours done: {:.2f} seconds".format(ms_end - ms_begin))
 
-    writeContoursToVtk(contours, "gisContours.vtk")
+    writeContoursToVtk(contours, "gisContours.vtk", cell_size, min_x, min_y)
 
     toc = time.time()
     print("mesh_gl done: {:.2f} seconds\n".format(toc - tic))
 
     max_contour = max(contours, key=len)
     max_contour_len = len(max_contour)
-    print("max sized contour lenth {}\n".format(max_contour_len))
+    print("max sized contour length {}\n".format(max_contour_len))
 
     return max_contour
 
